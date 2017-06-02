@@ -624,7 +624,10 @@ proc git_write {args} {
 }
 
 proc githook_read {hook_name args} {
-	set pchook [gitdir hooks $hook_name]
+	if {[catch {set hooksdir [git config core.hooksPath]}]} {
+		set hooksdir [gitdir hooks]
+	}
+	set pchook [file join $hooksdir $hook_name]
 	lappend args 2>@1
 
 	# On Windows [file executable] might lie so we need to ask
