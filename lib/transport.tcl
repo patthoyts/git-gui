@@ -61,7 +61,7 @@ proc push_to {remote} {
 
 proc start_push_anywhere_action {w} {
 	global push_urltype push_remote push_url push_thin push_tags
-	global push_force
+	global push_force push_forcewithlease
 	global repo_config
 
 	set is_mirror 0
@@ -82,6 +82,9 @@ proc start_push_anywhere_action {w} {
 	}
 	if {$push_force} {
 		lappend cmd --force
+	}
+	if {$push_forcewithlease} {
+		lappend cmd --force-with-lease
 	}
 	if {$push_tags} {
 		lappend cmd --tags
@@ -120,7 +123,7 @@ trace add variable push_remote write \
 proc do_push_anywhere {} {
 	global all_remotes current_branch
 	global push_urltype push_remote push_url push_thin push_tags
-	global push_force use_ttk NS
+	global push_force push_forcewithlease use_ttk NS
 
 	set w .push_setup
 	toplevel $w
@@ -207,6 +210,10 @@ proc do_push_anywhere {} {
 		-text [mc "Force overwrite existing branch (may discard changes)"] \
 		-variable push_force
 	grid $w.options.force -columnspan 2 -sticky w
+	${NS}::checkbutton $w.options.forcewithlease \
+		-text [mc "Force overwrite existing branch (if remote base is same as local base, '--force-with-lease')"] \
+		-variable push_forcewithlease
+	grid $w.options.forcewithlease -columnspan 2 -sticky w
 	${NS}::checkbutton $w.options.thin \
 		-text [mc "Use thin pack (for slow network connections)"] \
 		-variable push_thin
@@ -220,6 +227,7 @@ proc do_push_anywhere {} {
 
 	set push_url {}
 	set push_force 0
+	set push_forcewithlease 0
 	set push_thin 0
 	set push_tags 0
 
